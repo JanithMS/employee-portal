@@ -5,18 +5,40 @@ import dotenv from "dotenv";
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import jwt from "jsonwebtoken";
 import { createServer } from "http";
 import resolvers from "./resolvers";
 import { AppDataSource } from "./data-source";
+import User from "./entities/User";
+import authChecker from "./utils/authchecker";
 
 dotenv.config();
 
 const main = async () => {
-  const schema = await buildSchema({ resolvers });
+  const schema = await buildSchema({ resolvers, authChecker });
 
   const server = new ApolloServer({
     schema,
     csrfPrevention: true,
+    context: async ({
+      req,
+      res,
+    }: {
+      req: express.Request;
+      res: express.Response;
+    }) => {
+      let user;
+      const token = req.cookies.token;
+      if (token) {
+        try {
+          const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+          user = await User.findOne({ where: { id: decoded } });
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      return { req, res, user };
+    },
   });
 
   await server.start();
@@ -28,7 +50,8 @@ const main = async () => {
   //TODO:  Change it in production
   app.use(
     cors({
-      credentials: false,
+      credentials: true,
+      origin: ["https://studio.apollographql.com"],
     })
   );
 

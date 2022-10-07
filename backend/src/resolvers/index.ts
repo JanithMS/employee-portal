@@ -1,13 +1,5 @@
 // Import all your resolvers hereu
 
-import { Query, Resolver } from "type-graphql";
+import UserResolver from "./User";
 
-@Resolver()
-class InitResolver {
-  @Query(() => String)
-  init() {
-    return "Server is Running";
-  }
-}
-
-export default [InitResolver] as const;
+export default [UserResolver] as const;
