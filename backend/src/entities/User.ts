@@ -4,10 +4,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { UserRole } from "../utils";
+import Task from "./Task";
 
 registerEnumType(UserRole, { name: "UserRole" });
 
@@ -52,6 +54,10 @@ class User extends BaseEntity {
   @UpdateDateColumn({ type: "timestamptz" })
   @Field(() => Date)
   updateAt: Date;
+
+  @OneToMany(() => Task, (task) => task.createdBy, { nullable: true })
+  @Field(() => Task, { nullable: true })
+  tasks: Task[];
 }
 
 export default User;

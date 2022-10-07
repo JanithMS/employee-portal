@@ -1,4 +1,13 @@
-import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  FieldResolver,
+  Mutation,
+  Query,
+  Resolver,
+  Root,
+} from "type-graphql";
 import { UserInputError } from "apollo-server-express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -8,6 +17,7 @@ import User from "../entities/User";
 import { autoGenPass, UserRole } from "../utils";
 import { PaginationInput } from "../input";
 import { GetEmployeesOutput } from "../output/User";
+import Task from "../entities/Task";
 
 @Resolver(() => User)
 class UserResolver {
@@ -91,6 +101,18 @@ class UserResolver {
   @Authorized()
   async getMe(@Ctx() { user }: MyContext) {
     return user;
+  }
+
+  @FieldResolver(() => Task)
+  async tasks(@Root() { id, tasks }: User) {
+    if (tasks) return tasks;
+
+    const user = await User.findOneOrFail({
+      where: { id },
+      relations: ["tasks"],
+    });
+
+    return user.tasks;
   }
 }
 

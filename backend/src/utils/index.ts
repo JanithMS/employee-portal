@@ -3,6 +3,12 @@ export enum UserRole {
   EMPLOYEE = "EMPLOYEE",
 }
 
+export enum TaskType {
+  BREAK = "BREAK",
+  MEETING = "MEETING",
+  WORK = "WORK",
+}
+
 export function autoGenPass(length: number) {
   let result: string = "";
   const characters =
